@@ -3,8 +3,6 @@ package main
 import (
 	"log"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
-
 	"github.com/ziyadovea/task_manager/users/internal/app"
 	"github.com/ziyadovea/task_manager/users/internal/config"
 )
