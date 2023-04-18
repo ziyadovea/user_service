@@ -1,0 +1,3 @@
+app_env: dev # possible values: 'dev', 'test', 'prod'
+rest_port: 8082
+

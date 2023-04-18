@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package users;
+
+option go_package = "proto/v1/pb";
+
+import "proto/google/api/annotations.proto";
+import "proto/v1/user.proto";
+
+service UserService {
+  rpc RegisterUser(User) returns (UserView) {
+    option (google.api.http) = {
+      post: "/v1/users/sign-up",
+      body: "*"
+    };
+  }
+
+  rpc AuthenticateUser(AuthenticateUserRequest) returns (AuthenticateUserResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/sign-in",
+      body: "*"
+    };
+  }
+
+  rpc RefreshUserToken(RefreshUserTokenRequest) returns (RefreshUserTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/token:refresh",
+      body: "*"
+    };
+  }
+
+  rpc ValidateUserToken(ValidateUserTokenRequest) returns (ValidateUserTokenResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/token:validate",
+      body: "*"
+    };
+  }
+
+  rpc UpdateUser(User) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      patch: "/v1/users/{id}",
+      body: "*"
+    };
+  }
+
+  rpc RemoveUser(RemoveUserRequest) returns (RemoveUserResponse) {
+    option (google.api.http) = {
+      delete: "/v1/users/{user_id}",
+    };
+  }
+
+  rpc GetUser(GetUserRequest) returns (UserView) {
+    option (google.api.http) = {
+      get: "/v1/users/{user_id}",
+    };
+  }
+
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {
+      get: "/v1/users",
+    };
+  }
+}
+
+message AuthenticateUserRequest {
+  string email = 1;
+  string name = 2;
+  string password = 3;
+}
+
+message AuthenticateUserResponse {
+  string token = 1;
+  string refresh_token = 2;
+}
+
+message RefreshUserTokenRequest {
+  string refresh_token = 1;
+}
+
+message RefreshUserTokenResponse {
+  string access_token = 1;
+}
+
+message ValidateUserTokenRequest {
+  string token = 1;
+}
+
+message ValidateUserTokenResponse {
+  int64 user_id = 1;
+}
+
+message UpdateUserResponse {
+  int64 updated_count = 1;
+}
+
+message RemoveUserRequest {
+  int64 user_id = 1;
+}
+
+message RemoveUserResponse {
+  int64 removed_count = 1;
+}
+
+message GetUserRequest {
+  int64 user_id = 1;
+}
+
+message ListUsersRequest {}
+
+message ListUsersResponse {
+  repeated UserView users = 1;
+}
+

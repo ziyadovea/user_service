@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package users;
+
+option go_package = "proto/v1/pb";
+
+message User {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+  string password = 4;
+}
+
+// UserView is a model for responses, contains only non-sensitive data.
+message UserView {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+}
