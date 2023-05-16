@@ -10,9 +10,11 @@ import (
 	"syscall"
 	"time"
 
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
@@ -59,9 +61,14 @@ func Run(cfg config.Config) {
 			interceptors.Logging(),
 			interceptors.Auth(auth),
 		),
+		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),   // prometheus unary interceptor
+		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor), // prometheus stream interceptor
 	)
 	pb.RegisterUserServiceServer(gRPCServer, userGRPCService)
 	reflection.Register(gRPCServer)
+
+	// prometheus metrics handler
+	grpc_prometheus.Register(gRPCServer)
 
 	gRPCListener, err := net.Listen("tcp", ":"+cfg.GRPCPort)
 	if err != nil {
@@ -74,9 +81,18 @@ func Run(cfg config.Config) {
 	if err = pb.RegisterUserServiceHandlerFromEndpoint(ctx, gatewayMux, ":"+cfg.GRPCPort, opts); err != nil {
 		log.Fatalf("failed to register gateway: %v", err)
 	}
+
+	// Convert gatewayMux to http.ServeMux
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler()) // Register the promhttp.Handler()
+
+	// Register the gateway mux with the http.ServeMux
+	mux.Handle("/", gatewayMux)
+
+	// Create a gateway HTTP server and listen on a port
 	gatewayServer := &http.Server{
 		Addr:    ":" + cfg.RestPort,
-		Handler: gatewayMux,
+		Handler: mux,
 	}
 
 	// start the gRPC server goroutine

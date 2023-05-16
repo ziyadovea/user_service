@@ -1,7 +1,22 @@
 version: "3.9"
 services:
+  user_service:
+    build: ../
+    command: ./myapp -config /app/configs/dev.yaml
+    volumes:
+      - ../configs:/app/configs
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+    environment:
+      ACCESS_TOKEN_SECRET: "${ACCESS_TOKEN_SECRET}"
+      REFRESH_TOKEN_SECRET: "${REFRESH_TOKEN_SECRET}"
+      DB_URL: "${DB_URL}"
+
   postgres:
     image: postgres:14-alpine3.17
+    container_name: postgres
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
       POSTGRES_USER: "${POSTGRES_USER}"
@@ -10,4 +25,32 @@ services:
     volumes:
       - .:/var/lib/postgresql/data
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "5432:5432"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yaml'
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    volumes:
+      - ../prometheus:/etc/prometheus
+      - prom_data:/prometheus
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources
+
+volumes:
+  prom_data:

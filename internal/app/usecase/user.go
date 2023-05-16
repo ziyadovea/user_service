@@ -4,8 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 
 	"github.com/ziyadovea/task_manager/users/internal/app/entity"
+)
+
+// prometheus metric to measure user registration duration
+var userRegistrationDuration = promauto.NewSummary(
+	prometheus.SummaryOpts{
+		Name:       "user_usecase_register_user_duration_seconds_ms",
+		Help:       "Summary of User Registration duration",
+		Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+	},
 )
 
 type userUsecase struct {
@@ -21,6 +34,12 @@ func NewUserUsecase(repo UserRepository, authenticator Authenticator) userUsecas
 }
 
 func (u userUsecase) RegisterUser(ctx context.Context, user entity.User) (entity.User, error) {
+	// measure prometheus metric
+	start := time.Now()
+	defer func() {
+		userRegistrationDuration.Observe(float64(time.Since(start).Milliseconds()))
+	}()
+
 	if err := user.Validate(); err != nil {
 		return entity.User{}, fmt.Errorf("invalid user: %w", err)
 	}
