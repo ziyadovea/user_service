@@ -25,3 +25,6 @@ migrate-up:
 
 migrate-down:
 	goose -dir=$(MIGRATIONS_DIR) postgres $(DB_URL) down
+
+export-env:
+	set -o allexport && source .env && set +o allexport

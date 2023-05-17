@@ -1,0 +1,4 @@
+app_env: test # possible values: 'dev', 'test', 'prod'
+rest_port: 8083
+grpc_port: 50052
+
