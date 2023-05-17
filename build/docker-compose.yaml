@@ -1,5 +1,12 @@
 version: "3.9"
 services:
+  nginx:
+    build: ../nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - user_service
+
   user_service:
     build: ../
     command: ./myapp -config /app/configs/dev.yaml
@@ -7,6 +14,20 @@ services:
       - ../configs:/app/configs
     ports:
       - "8082:8082"
+    depends_on:
+      - postgres
+    environment:
+      ACCESS_TOKEN_SECRET: "${ACCESS_TOKEN_SECRET}"
+      REFRESH_TOKEN_SECRET: "${REFRESH_TOKEN_SECRET}"
+      DB_URL: "${DB_URL}"
+
+  user_service-repl1:
+    build: ../
+    command: ./myapp -config /app/configs/dev.yaml
+    volumes:
+      - ../configs:/app/configs
+    ports:
+      - "8083:8083"
     depends_on:
       - postgres
     environment:
