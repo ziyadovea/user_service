@@ -11,7 +11,7 @@ services:
 
   user_service:
     build: ../
-    command: ./myapp -config /app/configs/dev.yaml
+    command: ["./myapp", "-config", "/app/configs/dev.yaml"]
     container_name: user_service
     volumes:
       - ../configs:/app/configs
@@ -27,7 +27,7 @@ services:
 
   user_service_repl1:
     build: ../
-    command: ./myapp -config /app/configs/dev-repl1.yaml
+    command: ["./myapp", "-config", "/app/configs/dev.yaml"]
     container_name: user_service_repl1
     volumes:
       - ../configs:/app/configs

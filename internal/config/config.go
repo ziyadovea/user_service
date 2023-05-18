@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"time"
@@ -54,7 +55,11 @@ func InitConfig(path string) (Config, error) {
 		config.AppEnv = DevEnv
 	}
 	if config.DBUrl == "" {
-		config.DBUrl = os.Getenv(DBEnvKey)
+		var ok bool
+		config.DBUrl, ok = os.LookupEnv(DBEnvKey)
+		if !ok {
+			return Config{}, errors.New("empty db url")
+		}
 	}
 	if config.GRPCPort == "" {
 		config.GRPCPort = DefaultGRPCPort

@@ -26,4 +26,4 @@ WORKDIR /root/
 COPY --from=builder /app/myapp ./
 
 # Set the entry point for the container
-CMD ["./myapp"]
+CMD ["./myapp", "-config", "/app/configs/dev.yaml"]
