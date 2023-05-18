@@ -153,11 +153,13 @@ func (u userService) ListUsers(ctx context.Context, request *pb.ListUsersRequest
 	}, nil
 }
 
+type userIDCtxKey string
+
 func contextWithUserId(ctx context.Context) context.Context {
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
 		userIds := md.Get("user_id")
 		if len(userIds) > 0 {
-			ctx = context.WithValue(ctx, "user_id", userIds[0])
+			ctx = context.WithValue(ctx, userIDCtxKey("user_id"), userIds[0])
 		}
 	}
 	return ctx
