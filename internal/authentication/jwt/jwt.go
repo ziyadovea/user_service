@@ -50,7 +50,7 @@ func (a authenticator) CreateAccessToken(userID int64) (string, error) {
 
 	tokenString, err := token.SignedString(a.accessTokenSecretKey)
 	if err != nil {
-		return "", fmt.Errorf("unable to signed token: %w")
+		return "", fmt.Errorf("unable to signed token: %w", err)
 	}
 
 	return tokenString, nil
@@ -67,7 +67,7 @@ func (a authenticator) CreateRefreshToken(userID int64) (string, error) {
 
 	tokenString, err := token.SignedString(a.refreshTokenSecretKey)
 	if err != nil {
-		return "", fmt.Errorf("unable to signed token: %w")
+		return "", fmt.Errorf("unable to signed token: %w", err)
 	}
 
 	return tokenString, nil
